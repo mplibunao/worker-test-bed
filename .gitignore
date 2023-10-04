@@ -1,0 +1,69 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# testing
+coverage
+
+# next.js
+.next/
+out/
+build
+dist
+dist-ssr
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+*.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.test
+
+# turbo
+.turbo
+
+# wireit
+.wireit
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# docker pg
+db_data
+
+# docker-compose
+docker-compose.override.yml
+
+# eslint
+.eslintcache
+
+# pnpm store
+.pnpm-store/**
+
+# esbuild analyze artifacts
+analyze
+
+# Outdir for declarations
+dts/
+
+# GCP sa keys
+service_account_key.json
+credentials.json
