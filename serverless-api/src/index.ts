@@ -39,10 +39,33 @@ interface SearchResult {
 	}
 }
 
-const corsHeaders = {
+// Empty array allows everything '*'
+const allowedOrigins: string[] = [
+	//'https://serverless-api-viewer.pages.dev',
+	//'http://localhost:3000',
+]
+
+const corsHeaders = (origin: string) => ({
 	'Access-Control-Allow-Headers': '*',
 	'Access-Control-Allow-Methods': 'POST',
-	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Origin': origin,
+})
+
+/**
+ * Check the origin for this request
+ * If it is included in our set of known and allowed origins, return it, otherwise
+ * return a known, good origin. This effectively does not allow browsers to
+ * continue requests if the origin they're requesting from doesn't match.
+ * If allowedOrigins array is empty, return '*' and allow all origins instead
+ */
+const checkOrigin = (request: Request) => {
+	const origin = request.headers.get('Origin')
+	if (!origin || allowedOrigins.length === 0) return '*'
+
+	const foundOrigin = allowedOrigins.find((allowedOrigin) =>
+		allowedOrigin.includes(origin)
+	)
+	return foundOrigin ? foundOrigin : allowedOrigins[0]
 }
 
 export default {
@@ -52,8 +75,9 @@ export default {
 		ctx: ExecutionContext
 	): Promise<Response> {
 		if (request.method === 'OPTIONS') {
+			const allowedOrigin = checkOrigin(request)
 			return new Response('OK', {
-				headers: corsHeaders,
+				headers: corsHeaders(allowedOrigin),
 			})
 		}
 
@@ -81,7 +105,12 @@ async function getImages(request: Request, env: Env) {
 		image: image.urls.small,
 		link: image.links.html,
 	}))
+
+	const allowedOrigin = checkOrigin(request)
 	return new Response(JSON.stringify(images), {
-		headers: { 'Content-Type': 'application/json', ...corsHeaders },
+		headers: {
+			'Content-Type': 'application/json',
+			...corsHeaders(allowedOrigin),
+		},
 	})
 }

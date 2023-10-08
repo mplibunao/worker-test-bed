@@ -17,6 +17,7 @@ curl -H "Content-Type: application" -d '{"query": "guitar"}' http://127.0.0.1:87
 ## Query from browser
 
 - For testing cors without needing to create a react app
+- Make sure to commend out the values inside the `allowedOrigins` array so that it defaults to `*` and allows all origin
 - Open dev tools in browser then paste
 
 > **Note**: Replace the url when testing in production
