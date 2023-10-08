@@ -1,0 +1,7 @@
+name = "my-kv-project"
+main = "src/index.ts"
+compatibility_date = "2023-10-08"
+
+kv_namespaces = [
+	{ binding = "MY_FIRST_KV", id = "71d08856e0784a31baff5e1b3f5c6589" }
+]
