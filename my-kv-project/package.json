@@ -12,5 +12,8 @@
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "vitest"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.22.1"
   }
 }

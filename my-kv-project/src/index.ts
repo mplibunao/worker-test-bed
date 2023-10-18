@@ -8,8 +8,12 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { Redis } from '@upstash/redis/cloudflare'
+
 export interface Env {
 	MY_FIRST_KV: KVNamespace
+	UPSTASH_REDIS_REST_URL: string
+	UPSTASH_REDIS_REST_TOKEN: string
 }
 
 function html(todos: string) {
@@ -109,11 +113,46 @@ export default {
 		env: Env,
 		ctx: ExecutionContext
 	): Promise<Response> {
-		if (request.method === 'PUT') {
-			return updateTodos(env, request)
-		} else {
-			return getTodos(env, request)
+		//const key = 'data-202.90.152.69'
+		const key = 'mp'
+		//const redis = Redis.fromEnv(env)
+		const { searchParams } = new URL(request.url)
+		const bust = searchParams.get('bust')
+		const cacheTtl = bust ? 60 : 29030400
+
+		//const beforeRedis = performance.now()
+		//const redisResponse = await redis.get(key)
+		//const redisLatency = performance.now() - beforeRedis
+
+		const beforeKV = performance.now()
+		const data = await getCache(env, key, cacheTtl)
+		const kvLatency = performance.now() - beforeKV
+
+		if (bust && data) {
+			await setCache(env, key, String(parseInt(data) + 1))
+			await getCache(env, key, 29030400)
 		}
+		//await setCache(env, key, data as string)
+
+		return new Response(
+			JSON.stringify({
+				kvLatency,
+				//redisLatency,
+				kvData: data,
+				//redisData: redisResponse,
+				bust: bust ? true : false,
+				cacheTtl,
+			}),
+			{
+				headers: { 'Content-Type': 'application/json' },
+			}
+		)
+
+		//if (request.method === 'PUT') {
+		//return updateTodos(env, request)
+		//} else {
+		//return getTodos(env, request)
+		//}
 	},
 }
 
@@ -127,7 +166,8 @@ interface Data {
 }
 const defaultData: Data = { todos: [] }
 
-const getCache = (env: Env, cacheKey: string) => env.MY_FIRST_KV.get(cacheKey)
+const getCache = (env: Env, cacheKey: string, cacheTtl?: number) =>
+	env.MY_FIRST_KV.get(cacheKey, { cacheTtl })
 const setCache = (env: Env, cacheKey: string, data: string) =>
 	env.MY_FIRST_KV.put(cacheKey, data)
 
